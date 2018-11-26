@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/markerInfo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="invisible">
+
+    <RelativeLayout
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingTop="38dp"
+        android:paddingLeft="60dp"
+        android:paddingRight="60dp"
+        android:layout_margin="5dp"
+        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/frame">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textSize="16dp"
+            android:textAlignment="center"
+            android:fontFamily="@font/font"
+            android:text="@string/nameText"
+            android:textColor="@color/white1"/>
+
+        <TextView
+            android:id="@+id/route"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:textSize="20dp"
+            android:fontFamily="@font/font"
+            android:text="@string/personText"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_alignTop="@+id/name"/>
+
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="@string/descriptionText"
+            android:layout_marginTop="22dp"
+            android:fontFamily="@font/font"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_alignTop="@+id/route"/>
+
+        <TextView
+            android:id="@+id/talk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:textSize="18dp"
+            android:fontFamily="@font/font"
+            android:text="@string/actionText"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_alignTop="@+id/info"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

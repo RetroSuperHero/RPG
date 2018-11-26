@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fragment
+    android:id="@+id/map"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapView">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/map_hud" />
+        <include layout="@layout/map_discovered" />
+        <include layout="@layout/map_marker_info" />
+        <include layout="@layout/map_legend" />
+
+    </RelativeLayout>
+
+</fragment>

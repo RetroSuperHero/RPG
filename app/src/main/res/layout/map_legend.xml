@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/legendView"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="invisible"
+    android:padding="20dp"
+    android:background="@color/colorPrimaryDarkAlpha">
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/legendbcg" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="35dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font"
+            android:text="@string/legend"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="30sp" />
+
+        <ImageView
+            android:id="@+id/closeLegend"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/x"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/desciptionLegend"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout3">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/myLocationLegend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/x"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:fontFamily="@font/font"
+                android:text="Twoja lokalizacja"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="20dp"
+                app:layout_constraintStart_toEndOf="@+id/imageView3" />
+
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/merchantLegend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/myLocationLegend">
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/coin"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sprzedawca"
+                android:textColor="@color/colorPrimaryDark"
+                android:fontFamily="@font/font"
+                android:textSize="20dp"
+                android:layout_marginLeft="15dp"
+                app:layout_constraintStart_toEndOf="@+id/imageView4" />
+
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/swordsmanLegend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/merchantLegend">
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/sword"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kowal"
+                android:textColor="@color/colorPrimaryDark"
+                android:fontFamily="@font/font"
+                android:textSize="20dp"
+                android:layout_marginLeft="15dp"
+                app:layout_constraintStart_toEndOf="@+id/imageView5" />
+
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">RPG</string>
+    <string name="title_activity_main_map">Map</string>
+    <string name="backpack">Backpack</string>
+    <string name="title_activity_add_location">AddLocation</string>
+    <string name="discovered">Odkryles</string>
+    <string name="defaultLocationText">Rynek Główny</string>
+    <string name="nameText">{{name}}</string>
+    <string name="personText">Wyznacz trasę</string>
+    <string name="descriptionText">{{description}}</string>
+    <string name="actionText">Talk</string>
+    <string name="legend">Legenda</string>
+</resources>

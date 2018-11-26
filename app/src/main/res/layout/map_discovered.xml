@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="250dp"
+        android:layout_height="110dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="35dp"
+        android:layout_alignParentEnd="true"
+        android:animateLayoutChanges="true"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <RelativeLayout
+            android:id="@+id/discovered"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:translationY="-110dp"
+            android:padding="10dp"
+            android:background="@drawable/framenewdiscovery"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="20dp"
+                android:layout_centerHorizontal="true"
+                android:textSize="15dp"
+                android:fontFamily="@font/font"
+                android:text="@string/discovered"
+                android:textColor="@color/colorPrimaryDark"/>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_centerHorizontal="true"
+                android:textSize="20dp"
+                android:fontFamily="@font/font"
+                android:text="@string/defaultLocationText"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_alignTop="@+id/textView1"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/legend"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/locationframe"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/areaName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/defaultLocationText"
+            android:textSize="13sp"
+            android:paddingTop="17dp"
+            android:paddingLeft="45dp"
+            android:fontFamily="@font/font"
+            android:textColor="@color/white1"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
