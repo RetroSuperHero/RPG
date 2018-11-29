@@ -3,12 +3,16 @@ package eu.faultycode.rpg;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.PolyUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class MapOptions {
@@ -36,7 +40,7 @@ public final class MapOptions {
         for (ExtendedMarker extendedMarker : extendedMarkers) {
             boolean foundInPolygon = false;
             for (Polygon polygon : polygons) {
-                if (isMarkerInVisiblePolygon(extendedMarker, polygon)) {
+                if (extendedMarker.isMarkerInVisiblePolygon(polygon)) {
                     foundInPolygon = true;
                 }
             }
@@ -46,11 +50,25 @@ public final class MapOptions {
         }
     }
 
-    private static boolean isMarkerInVisiblePolygon(ExtendedMarker marker, Polygon polygon) {
-        return polygon.isVisible() && isMarkerInPolygon(marker, polygon);
+    public static List<Polygon> putPolygonsOnMap(List<ExtendedPolygon> extendedPolygons, Context current, GoogleMap googleMap) {
+        List<Polygon> polygons = new ArrayList<>();
+        for(ExtendedPolygon extendedPolygon : extendedPolygons) {
+            Polygon polygon = googleMap.addPolygon(extendedPolygon.getPolygon());
+            polygon.setTag(extendedPolygon.getName());
+            polygons.add(polygon);
+            DatabaseHandler db = new DatabaseHandler(current);
+            if(db.isDiscovered(extendedPolygon.getId())) {
+                polygon.setVisible(false);
+            }
+        }
+        return polygons;
     }
 
-    private static boolean isMarkerInPolygon(ExtendedMarker marker, Polygon polygon) {
-        return PolyUtil.containsLocation(marker.getMarker().getPosition(), polygon.getPoints(), false);
+    public static void showDiscovery(Polygon polygon, View discovery, TextView textView) {
+        textView.setText(polygon.getTag().toString());
+        discovery.animate().translationY(0).setDuration(750);
+        new android.os.Handler().postDelayed(() -> {
+            discovery.animate().translationY(-350).setDuration(750);
+        }, 2500);
     }
 }

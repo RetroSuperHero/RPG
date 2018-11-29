@@ -15,14 +15,15 @@ import com.google.maps.android.PolyUtil;
 public class ExtendedMarker {
     private Context context;
     private MarkerOptions marker;
+    private static final int MARKER_SIZE = 150;
 
-    public ExtendedMarker(int id, Context current, LatLng position, String icon, int width, int height, String name) {
+    ExtendedMarker(int id, Context current, LatLng position, String icon, String name) {
         this.context = current;
         marker = new MarkerOptions()
                 .title(name)
                 .position(position)
                 .snippet(Integer.toString(id))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(icon,width,height)));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(icon,MARKER_SIZE,MARKER_SIZE)));
     }
 
     public int getId(Marker marker) {
@@ -55,11 +56,18 @@ public class ExtendedMarker {
     private Bitmap resizeMapIcons(String iconName,int width, int height){
         Bitmap imageBitmap = BitmapFactory
                 .decodeResource(context.getResources(),context.getResources().getIdentifier(iconName, "drawable", context.getPackageName()));
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
-        return resizedBitmap;
+        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
     }
 
     public boolean isInPolygon(Polygon polygon) {
         return PolyUtil.containsLocation(this.getPosition(), polygon.getPoints(), false);
+    }
+
+    public boolean isMarkerInVisiblePolygon(Polygon polygon) {
+        return polygon.isVisible() && this.isMarkerInPolygon(polygon);
+    }
+
+    private boolean isMarkerInPolygon(Polygon polygon) {
+        return PolyUtil.containsLocation(this.getMarker().getPosition(), polygon.getPoints(), false);
     }
 }

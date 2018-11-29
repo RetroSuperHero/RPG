@@ -29,7 +29,26 @@ public class ExtendedGeoApiContext {
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DOT);
 
-    public static GeoApiContext getGeoContext(Context current) {
+    public static void createRoute(Context current, ExtendedMarker myLocationMarker, Marker destinationMarker, GoogleMap mMap) {
+        DateTime now = new DateTime();
+
+        com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(myLocationMarker.getPosition().latitude, myLocationMarker.getPosition().longitude);
+        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(destinationMarker.getPosition().latitude, destinationMarker.getPosition().longitude);
+
+        try {
+            DirectionsResult result = DirectionsApi
+                    .newRequest(ExtendedGeoApiContext.getGeoContext(current))
+                    .mode(TravelMode.WALKING).origin(origin)
+                    .destination(destination).departureTime(now)
+                    .await();
+
+            addPolyline(current, result, mMap);
+        } catch (Exception e) {
+            Log.e("Error", "Couldn't find route!");
+        }
+    }
+
+    private static GeoApiContext getGeoContext(Context current) {
         GeoApiContext geoApiContext = new GeoApiContext();
         return geoApiContext.setQueryRateLimit(3)
                 .setApiKey(current.getString(R.string.google_maps_key))
@@ -51,24 +70,5 @@ public class ExtendedGeoApiContext {
                 .color(colorPrimary)
                 .pattern(PATTERN_POLYGON_ALPHA)
                 .clickable(true));
-    }
-
-    public static void createRoute(Context current, ExtendedMarker myLocationMarker, Marker destinationMarker, GoogleMap mMap) {
-        DateTime now = new DateTime();
-
-        com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(myLocationMarker.getPosition().latitude, myLocationMarker.getPosition().longitude);
-        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(destinationMarker.getPosition().latitude, destinationMarker.getPosition().longitude);
-
-        try {
-            DirectionsResult result = DirectionsApi
-                    .newRequest(ExtendedGeoApiContext.getGeoContext(current))
-                    .mode(TravelMode.WALKING).origin(origin)
-                    .destination(destination).departureTime(now)
-                    .await();
-
-            addPolyline(current, result, mMap);
-        } catch (Exception e) {
-            Log.e("Error", "Couldn't find route!");
-        }
     }
 }

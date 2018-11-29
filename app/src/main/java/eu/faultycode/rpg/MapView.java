@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,40 +27,66 @@ import java.util.ArrayList;
 
 import eu.faultycode.rpg.races.Human;
 import eu.faultycode.rpg.races.Player;
-import eu.faultycode.rpg.temp.Markers;
-import eu.faultycode.rpg.temp.Polygons;
 
 public class MapView extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
+
     private static final int MIN_ZOOM = 14;
     private static final int MAX_ZOOM = 18;
+
     private ExtendedMarker myLocationMarker;
     private ExtendedMarker campLocationMarker;
+
     private List<Polygon> polygons = new ArrayList<>();
     private List<ExtendedMarker> markers = new ArrayList<>();
+
     Player myPlayer = new Human();
+    DatabaseHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_map);
 
+        db = new DatabaseHandler(this);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
-    @SuppressLint("ResourceAsColor")
     @Override
+    @SuppressLint("ResourceAsColor")
     public void onMapReady(GoogleMap googleMap) {
         mMap = MapOptions.setMap(this, googleMap, MIN_ZOOM, MAX_ZOOM, R.raw.style_json);
-
-        //--TEMP-- Create some static polygons and markers
         createMarkersAndPolygons();
-
+        setEventListeners();
         mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocationMarker.getPosition()));
+    }
 
-        // --TEMP-- Set markers position after drag
+    private void createMarkersAndPolygons() {
+        markers = db.getMarkers(this, mMap);
+
+        LatLng myLocation = new LatLng(50.074974, 19.923168);
+        myLocationMarker = new ExtendedMarker(0, this, myLocation, "x","Me");
+        myLocationMarker.getMarker().draggable(true);
+        mMap.addMarker(myLocationMarker.getMarker());
+
+        campLocationMarker = new ExtendedMarker(0, this, new LatLng(0, 0), "backpack", "Obozowisko");
+        ImageView setCamp = findViewById(R.id.setCamp);
+        setCamp.setOnClickListener(v -> {
+            db.addMarker("Obozowisko", "backpack", myLocationMarker.getPosition().latitude, myLocationMarker.getPosition().longitude);
+            campLocationMarker.getMarker().position(myLocationMarker.getPosition());
+            mMap.addMarker(campLocationMarker.getMarker());
+            setCamp.setVisibility(View.INVISIBLE);
+        });
+
+        List<ExtendedPolygon> polygonsOptions = db.getPolygons(this);
+        polygons = MapOptions.putPolygonsOnMap(polygonsOptions,this, mMap);
+        MapOptions.putMarkersOnMap(markers, polygons, mMap);
+    }
+
+    private void setEventListeners() {
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) { }
@@ -79,26 +106,17 @@ public class MapView extends FragmentActivity implements OnMapReadyCallback {
                     }
                     if (polygon.isVisible() && myLocationMarker.isInPolygon(polygon)) {
                         polygon.setVisible(false);
+                        int id = db.getPolygonIdByName(polygon.getTag().toString());
+                        db.setDiscovered(id);
                         View discovery = findViewById(R.id.discovered);
                         TextView textView = findViewById(R.id.textView2);
-                        Polygons.showDiscovery(polygon, discovery, textView);
+                        MapOptions.showDiscovery(polygon, discovery, textView);
                     }
                 }
                 MapOptions.putMarkersOnMap(markers, polygons, mMap);
             }
         });
 
-        // --TEMP-- Set comeback for zoom
-        ImageView zoom = findViewById(R.id.zoom);
-        zoom.setOnClickListener(v -> {
-            mMap.animateCamera(CameraUpdateFactory
-                    .newLatLngZoom(new LatLng(myLocationMarker.getPosition().latitude, myLocationMarker.getPosition().longitude), MIN_ZOOM));
-            RelativeLayout markerInfo = findViewById(R.id.markerInfo);
-            markerInfo.setVisibility(View.INVISIBLE);
-
-        });
-
-        //Set custom onClickListeners for markers
         mMap.setOnMarkerClickListener(marker -> {
             RelativeLayout markerInfo = findViewById(R.id.markerInfo);
             TextView name = findViewById(R.id.name);
@@ -124,6 +142,18 @@ public class MapView extends FragmentActivity implements OnMapReadyCallback {
             return true;
         });
 
+        // --TEMP-- Set comeback for zoom
+        ImageView zoom = findViewById(R.id.zoom);
+        zoom.setOnClickListener(v -> {
+            mMap.animateCamera(CameraUpdateFactory
+                    .newLatLngZoom(new LatLng(myLocationMarker.getPosition().latitude, myLocationMarker.getPosition().longitude), MIN_ZOOM));
+            RelativeLayout markerInfo = findViewById(R.id.markerInfo);
+            markerInfo.setVisibility(View.INVISIBLE);
+            myPlayer.addExp((int) (Math.random()*150));
+            Log.d("aaaa", "Exp " + myPlayer.getExp() + " lvl " + myPlayer.getLevel());
+
+        });
+
         //Open map legend
         RelativeLayout mapLegend = findViewById(R.id.legend);
         mapLegend.setOnClickListener(legend -> {
@@ -133,6 +163,7 @@ public class MapView extends FragmentActivity implements OnMapReadyCallback {
             legendView.setVisibility(View.VISIBLE);
             closeLegend.setOnClickListener(close -> {
                 legendView.setVisibility(View.INVISIBLE);
+                db.dropDatabase();
             });
         });
 
@@ -153,23 +184,5 @@ public class MapView extends FragmentActivity implements OnMapReadyCallback {
                 });
             }
         }
-    }
-
-    private void createMarkersAndPolygons() {
-        Polygons.create(this, mMap, polygons);
-        Markers.create(markers, this, mMap, polygons);
-
-        LatLng myLocation = new LatLng(50.074974, 19.923168);
-        myLocationMarker = new ExtendedMarker(0, this, myLocation, "x", 150, 150, "Me");
-        myLocationMarker.getMarker().draggable(true);
-        mMap.addMarker(myLocationMarker.getMarker());
-
-        campLocationMarker = new ExtendedMarker(0, this, new LatLng(0, 0), "backpack", 150, 150, "Obozowisko");
-        ImageView setCamp = findViewById(R.id.setCamp);
-        setCamp.setOnClickListener(v -> {
-            campLocationMarker.getMarker().position(myLocationMarker.getPosition());
-            mMap.addMarker(campLocationMarker.getMarker());
-            setCamp.setVisibility(View.INVISIBLE);
-        });
     }
 }
