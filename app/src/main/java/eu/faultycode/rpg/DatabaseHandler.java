@@ -18,6 +18,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.faultycode.rpg.races.Human;
+import eu.faultycode.rpg.races.Player;
+
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private Context current;
@@ -25,6 +28,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "db";
+
+    private static final String TABLE_PLAYER = "player";
+    private static final String KEY_PLAYER_ID = "id";
+    private static final String KEY_PLAYER_RACE = "race";
+    private static final String KEY_PLAYER_NAME = "name";
+    private static final String KEY_PLAYER_LEVEL = "level";
+    private static final String KEY_PLAYER_EXP = "exp";
+    private static final String KEY_PLAYER_HAS_CAMP = "has_camp";
 
     private static final String TABLE_MARKERS = "markers";
     private static final String KEY_MARKER_ID = "id";
@@ -46,17 +57,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         current = context;
-
-        if(!checkDB()) {
-            try {
-                createDatabaseFromFile();
-            } catch (IOException e) {
-                Log.e("Database: ", "couldn't load database. " + e.getMessage());
-            }
-        }
     }
 
-    private boolean checkDB() {
+    public boolean checkDB() {
         SQLiteDatabase check = null;
         try {
             check = SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READONLY);
@@ -81,7 +84,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void createDatabaseFromFile() throws IOException {
+    public void create() {
+        try {
+            createDatabaseFromFile();
+        } catch (IOException e) {
+            Log.e("Database: ", "couldn't load database. " + e.getMessage());
+        }
+    }
+
+    private void createDatabaseFromFile() throws IOException {
         InputStream myInput = current.getAssets().open("staticdb.sql");
         OutputStream myOutput = new FileOutputStream(DB_PATH);
 
@@ -259,6 +270,48 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.update(TABLE_POLYGONS, values, "id = ?", new String[]{Integer.toString(id)});
         db.close();
+    }
+
+    public void savePlayer(Player player) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_PLAYER_RACE, player.getClass().toString());
+        values.put(KEY_PLAYER_NAME, player.getName());
+        values.put(KEY_PLAYER_LEVEL, player.getLevel());
+        values.put(KEY_PLAYER_EXP, player.getExp());
+        values.put(KEY_PLAYER_HAS_CAMP, player.hasCamp() ? 1 : 0);
+
+        db.update(TABLE_PLAYER, values, "id = ?", new String[]{Integer.toString(1)});
+        db.close();
+    }
+
+    public Player getPlayer() {
+        Player player;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_PLAYER, new String[] {
+                        KEY_PLAYER_ID, KEY_PLAYER_RACE, KEY_PLAYER_NAME, KEY_PLAYER_LEVEL, KEY_PLAYER_EXP, KEY_PLAYER_HAS_CAMP
+                }, KEY_POSITION_ID + "=?",
+                new String[] { Integer.toString(1) }, null, null, null, null);
+
+        if (cursor.moveToFirst()){
+            switch(cursor.getString(cursor.getColumnIndex(KEY_PLAYER_RACE))) {
+                case("class eu.faultycode.rpg.races.Human") :
+                    int level = cursor.getInt(cursor.getColumnIndex(KEY_PLAYER_LEVEL));
+                    int exp = cursor.getInt(cursor.getColumnIndex(KEY_PLAYER_EXP));
+                    String name = cursor.getString(cursor.getColumnIndex(KEY_PLAYER_NAME));
+                    boolean hasCamp = cursor.getInt(cursor.getColumnIndex(KEY_PLAYER_HAS_CAMP)) == 1;
+                    player = new Human(name, level, exp, hasCamp);
+                    break;
+                default:
+                    player = new Human("ERROR");
+            }
+        } else {
+            player = new Human("ERROR");
+        }
+
+        cursor.close();
+        return player;
     }
 
     //TODO: TMP FOR DEBUGGIN'

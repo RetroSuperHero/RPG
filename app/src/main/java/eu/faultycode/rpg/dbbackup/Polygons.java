@@ -6,7 +6,7 @@ import eu.faultycode.rpg.DatabaseHandler;
 
 public class Polygons {
     public static void create(Context current) {
-        DatabaseHandler db = new DatabaseHandler(current);
+//       DatabaseHandler db = new DatabaseHandler(current, true);
 //        List<LatLng> lista = new ArrayList<>();
 //        lista.add(new LatLng(50.055318, 19.934833));
 //        lista.add(new LatLng(50.061903, 19.931754));

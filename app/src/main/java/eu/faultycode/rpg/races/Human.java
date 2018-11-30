@@ -9,8 +9,12 @@ public class Human extends Player {
             DELTA_AGILITY = 1,
             DELTA_HP = 10;
 
-    public Human() {
-        super(BASIC_DMG, BASIC_AGILITY, BASIC_HP, BASIC_MAX_WEIGHT);
+    public Human(String name) {
+        super(name, BASIC_DMG, BASIC_AGILITY, BASIC_HP, BASIC_MAX_WEIGHT);
+    }
+
+    public Human(String name, int level, int exp, boolean hasCamp) {
+        super(name, BASIC_DMG, BASIC_AGILITY, BASIC_HP, BASIC_MAX_WEIGHT, level, exp, hasCamp);
     }
 
     @Override

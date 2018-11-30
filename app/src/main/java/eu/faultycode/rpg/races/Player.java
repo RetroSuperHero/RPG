@@ -1,19 +1,32 @@
 package eu.faultycode.rpg.races;
 
 public abstract class Player {
+    private String name;
     private int exp;
     private int level;
     private int dmg;
     private int agility;
     private int HP;
     private int maxWeight;
-    boolean hasCamp;
+    private boolean hasCamp;
 
-    public Player(int basicDmg, int basicAgility, int basicHP, int maxWeight) {
+    Player(String name, int basicDmg, int basicAgility, int basicHP, int maxWeight) {
+        this.name = name;
         this.exp = 0;
         this.level = 1;
         this.hasCamp = false;
         setStats(basicDmg, basicAgility, basicHP, maxWeight);
+    }
+
+    Player(String name, int basicDmg, int basicAgility, int basicHP, int maxWeight, int level, int exp, boolean hasCamp) {
+        this.name = name;
+        this.exp = exp;
+        this.level = level;
+        this.hasCamp = hasCamp;
+        setStats(basicDmg, basicAgility, basicHP, maxWeight);
+        for(int i=0; i<level; ++i) {
+            statsOnLevelUp();
+        }
     }
 
     private void setStats(int basicDmg, int basicAgility, int basicHP, int maxWeight) {
@@ -45,6 +58,10 @@ public abstract class Player {
         return (int) Math.floor(Math.pow(50, (Math.pow(this.level, 1.0/4))));
     }
 
+    public String getName() {
+        return name;
+    }
+
     public int getLevel() {
         return this.level;
     }
@@ -69,6 +86,10 @@ public abstract class Player {
         return maxWeight;
     }
 
+    public boolean hasCamp() {
+        return hasCamp;
+    }
+
     public void setLevel(int level) {
         this.level = level;
     }
@@ -90,6 +111,10 @@ public abstract class Player {
     public void setHP(int HP) {
         if(HP > 0)
             this.HP = HP;
+    }
+
+    public void setHasCamp(boolean hasCamp) {
+        this.hasCamp = hasCamp;
     }
 
     public void setMaxWeight(int maxWeight) {
