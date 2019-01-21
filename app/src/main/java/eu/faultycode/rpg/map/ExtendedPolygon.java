@@ -1,4 +1,4 @@
-package eu.faultycode.rpg;
+package eu.faultycode.rpg.map;
 
 import android.content.Context;
 
@@ -7,12 +7,14 @@ import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.util.List;
 
+import eu.faultycode.rpg.R;
+
 public class ExtendedPolygon {
     private PolygonOptions polygon;
-    String name;
-    int id;
+    private String name;
+    private int id;
 
-    ExtendedPolygon(int id, Context current, List<LatLng> positions, String name) {
+    public ExtendedPolygon(int id, Context current, List<LatLng> positions, String name) {
         polygon = new PolygonOptions()
                 .addAll(positions)
                 .clickable(true)

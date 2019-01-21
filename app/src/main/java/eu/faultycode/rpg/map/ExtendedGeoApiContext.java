@@ -1,8 +1,10 @@
-package eu.faultycode.rpg;
+package eu.faultycode.rpg.map;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Dot;
@@ -23,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import eu.faultycode.rpg.R;
+
 public class ExtendedGeoApiContext {
     private static final int PATTERN_GAP_LENGTH_PX = 10;
     private static final PatternItem DOT = new Dot();
@@ -38,13 +42,15 @@ public class ExtendedGeoApiContext {
         try {
             DirectionsResult result = DirectionsApi
                     .newRequest(ExtendedGeoApiContext.getGeoContext(current))
-                    .mode(TravelMode.WALKING).origin(origin)
-                    .destination(destination).departureTime(now)
+                    .mode(TravelMode.WALKING)
+                    .origin(origin)
+                    .destination(destination)
+                    .departureTime(now)
                     .await();
 
             addPolyline(current, result, mMap);
         } catch (Exception e) {
-            Log.e("Error", "Couldn't find route!");
+            Log.e("Error: ", "Couldn't find route!");
         }
     }
 
@@ -70,5 +76,14 @@ public class ExtendedGeoApiContext {
                 .color(colorPrimary)
                 .pattern(PATTERN_POLYGON_ALPHA)
                 .clickable(true));
+    }
+
+    public static void showDiscovery(View discovery, TextView textView1, TextView textView2) {
+        textView1.setText("Wyznaczoną");
+        textView2.setText("najkrótszą trasę");
+        discovery.animate().translationY(0).setDuration(750);
+        new android.os.Handler().postDelayed(() -> {
+            discovery.animate().translationY(-350).setDuration(750);
+        }, 2500);
     }
 }

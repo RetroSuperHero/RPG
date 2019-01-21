@@ -1,6 +1,12 @@
 package eu.faultycode.rpg.races;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import eu.faultycode.rpg.map.CurrentLocation;
+
 public abstract class Player {
+    private Race race;
     private String name;
     private int exp;
     private int level;
@@ -10,16 +16,18 @@ public abstract class Player {
     private int maxWeight;
     private boolean hasCamp;
 
-    Player(String name, int basicDmg, int basicAgility, int basicHP, int maxWeight) {
+    Player(String name, Race race, int basicDmg, int basicAgility, int basicHP, int maxWeight) {
         this.name = name;
+        this.race = race;
         this.exp = 0;
         this.level = 1;
         this.hasCamp = false;
         setStats(basicDmg, basicAgility, basicHP, maxWeight);
     }
 
-    Player(String name, int basicDmg, int basicAgility, int basicHP, int maxWeight, int level, int exp, boolean hasCamp) {
+    Player(String name, Race race, int basicDmg, int basicAgility, int basicHP, int maxWeight, int level, int exp, boolean hasCamp) {
         this.name = name;
+        this.race = race;
         this.exp = exp;
         this.level = level;
         this.hasCamp = hasCamp;
@@ -61,6 +69,8 @@ public abstract class Player {
     public String getName() {
         return name;
     }
+
+    public Race getRace() { return race; }
 
     public int getLevel() {
         return this.level;

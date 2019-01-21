@@ -10,4 +10,10 @@
     <string name="descriptionText">{{description}}</string>
     <string name="actionText">Talk</string>
     <string name="legend">Legenda</string>
+    <string name="Talk">Porozmawiaj</string>
+    <string name="SeeItems">Zobacz towary</string>
+    <string name="fight">Zaatakuj</string>
+    <string name="dragon">Smok Wawelski</string>
+    <string name="accept">Zaakceptuj</string>
+    <string name="UnknownTerrain">Nieznane ziemie</string>
 </resources>

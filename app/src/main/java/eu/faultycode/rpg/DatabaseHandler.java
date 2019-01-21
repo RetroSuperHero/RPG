@@ -18,13 +18,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.faultycode.rpg.map.ExtendedMarker;
+import eu.faultycode.rpg.map.ExtendedPolygon;
+import eu.faultycode.rpg.quests.Fight;
+import eu.faultycode.rpg.quests.Quest;
 import eu.faultycode.rpg.races.Human;
 import eu.faultycode.rpg.races.Player;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private Context current;
-    private static final String DB_PATH = "/data/data/eu.faultycode.rpg/databases/db";
+    private String DB_PATH;
+    private static final String STATIC_DB_PATH = "staticdb.sql";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "db";
@@ -43,11 +48,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_MARKER_ICON = "icon";
     private static final String KEY_MARKER_LAT = "lat";
     private static final String KEY_MARKER_LNG = "lng";
+    private static final String KEY_MARKER_VIS = "alwaysVisible";
+    private static final String KEY_MARKER_TYPE = "type";
+    private static final String KEY_MARKER_VISIBLE = "visible";
 
     private static final String TABLE_POLYGONS = "polygons";
     private static final String KEY_POLYGON_ID = "id";
     private static final String KEY_POLYGON_NAME = "name";
     private static final String KEY_POLYGON_DISCOVERED = "discovered";
+
+    private static final String TABLE_QUESTS = "quests";
+    private static final String KEY_QUEST_ID = "id";
+    private static final String KEY_QUEST_PLOTID = "plotID";
+    private static final String KEY_QUEST_TITLE = "title";
+    private static final String KEY_QUEST_CONTENT = "content";
+    private static final String KEY_QUEST_EXP = "expReward";
 
     private static final String TABLE_POSITIONS = "positions";
     private static final String KEY_POSITION_ID = "id";
@@ -57,20 +72,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         current = context;
+        DB_PATH = current.getDatabasePath("db").toString();
     }
 
-    public boolean checkDB() {
-        SQLiteDatabase check = null;
-        try {
-            check = SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READONLY);
+    public boolean checkIfDatabaseExists() {
+        try (SQLiteDatabase check = SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READONLY)) {
+            Log.i("Database: ", "database exists.");
         } catch (Exception e) {
-            Log.d("Database: ", "database doesn't exist, creating new one.");
+            Log.e("Database: ", "database doesn't exist, creating new one.");
+            createNewDatabase();
+            return false;
         }
-        if (check!=null) {
-            check.close();
-        }
-
-        return check != null;
+        return true;
     }
 
     @Override
@@ -84,16 +97,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void create() {
+    private void createNewDatabase() {
         try {
             createDatabaseFromFile();
         } catch (IOException e) {
-            Log.e("Database: ", "couldn't load database. " + e.getMessage());
+            Log.e("Database: ", "couldn't load static database. " + e.getMessage());
         }
     }
 
     private void createDatabaseFromFile() throws IOException {
-        InputStream myInput = current.getAssets().open("staticdb.sql");
+        InputStream myInput = current.getAssets().open(STATIC_DB_PATH);
         OutputStream myOutput = new FileOutputStream(DB_PATH);
 
         byte[] buffer = new byte[1024];
@@ -107,7 +120,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         myInput.close();
     }
 
-    public void addMarker(String name, String icon, double lat, double lng) {
+    public void addMarkerToDatabase(String name, String icon, double lat, double lng, int alwaysVisible) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -115,26 +128,45 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_MARKER_ICON, icon);
         values.put(KEY_MARKER_LAT, lat);
         values.put(KEY_MARKER_LNG, lng);
+        values.put(KEY_MARKER_VIS, alwaysVisible);
 
         db.insert(TABLE_MARKERS, null, values);
-        db.close();
     }
 
-    public List<ExtendedMarker> getMarkers(Context current, GoogleMap mMap) {
+    public List<ExtendedMarker> getMarkersFromDatabase(Context current, GoogleMap mMap) {
         List<ExtendedMarker> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_MARKERS, null);
 
-        if (cursor.moveToFirst()){
-            while(!cursor.isAfterLast()){
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
                 int id = cursor.getInt(cursor.getColumnIndex(KEY_MARKER_ID));
                 String name = cursor.getString(cursor.getColumnIndex(KEY_MARKER_NAME));
                 String icon = cursor.getString(cursor.getColumnIndex(KEY_MARKER_ICON));
                 float lat = cursor.getFloat(cursor.getColumnIndex(KEY_MARKER_LAT));
                 float lng = cursor.getFloat(cursor.getColumnIndex(KEY_MARKER_LNG));
-                LatLng position = new LatLng(lat, lng);
+                int alwaysVisible = cursor.getInt(cursor.getColumnIndex(KEY_MARKER_VIS));
+                int type = cursor.getInt(cursor.getColumnIndex(KEY_MARKER_TYPE));
+                int visible = cursor.getInt(cursor.getColumnIndex(KEY_MARKER_VISIBLE));
 
-                result.add(new ExtendedMarker(id, current, position, icon, name));
+                LatLng position = new LatLng(lat, lng);
+                ExtendedMarker.MarkerTypes markerType;
+
+                switch (type) {
+                    case 0:
+                        markerType = ExtendedMarker.MarkerTypes.MERCHANT;
+                        break;
+                    case 1:
+                        markerType = ExtendedMarker.MarkerTypes.QUEST;
+                        break;
+                    case 2:
+                        markerType = ExtendedMarker.MarkerTypes.MONSTER;
+                        break;
+                    default:
+                        markerType = ExtendedMarker.MarkerTypes.PLAYER;
+                }
+
+                result.add(new ExtendedMarker(id, current, position, icon, name, alwaysVisible == 1, markerType, visible == 1));
                 cursor.moveToNext();
             }
         }
@@ -143,7 +175,56 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result;
     }
 
-    public void addPolygon(String name, List<LatLng> positions, int discovered) {
+    public Quest getQuestsFromDatabase(int questID) {
+        Quest result = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_QUESTS + " WHERE " + KEY_QUEST_PLOTID + " = " + questID, null);
+
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(0);
+            int plotID = cursor.getInt(cursor.getColumnIndex(KEY_QUEST_PLOTID));
+            String title = cursor.getString(cursor.getColumnIndex(KEY_QUEST_TITLE));
+            String content = cursor.getString(cursor.getColumnIndex(KEY_QUEST_CONTENT));
+            int expReward = cursor.getInt(cursor.getColumnIndex(KEY_QUEST_EXP));
+
+            result = new Quest(id, plotID, title, content, expReward);
+        }
+
+        cursor.close();
+        return result;
+    }
+
+    public Fight getFightFromDatabase(int questID) {
+        Fight result = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_QUESTS + " WHERE " + KEY_QUEST_PLOTID + " = " + questID, null);
+
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(0);
+            int plotID = cursor.getInt(cursor.getColumnIndex(KEY_QUEST_PLOTID));
+            String title = cursor.getString(cursor.getColumnIndex(KEY_QUEST_TITLE));
+            String content = cursor.getString(cursor.getColumnIndex(KEY_QUEST_CONTENT));
+            int expReward = cursor.getInt(cursor.getColumnIndex(KEY_QUEST_EXP));
+
+            result = new Fight(id, plotID, title, content, expReward);
+        }
+
+        cursor.close();
+        return result;
+    }
+
+    public void setMarkerActiveInDatabase(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_MARKER_VISIBLE,1);
+        db.update(TABLE_MARKERS, cv, KEY_MARKER_ID + " = "+id, null);
+    }
+
+    //TODO
+    public void addPolygonToDatabse(String name, List<LatLng> positions, int discovered) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -152,16 +233,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.insert(TABLE_POLYGONS, null, values);
 
-        int id = getPolygonIdByName(name);
+        int id = getPolygonIdByNameFromDatabase(name);
 
-        for(LatLng position : positions) {
-            addPosition(db, id, position);
+        for (LatLng position : positions) {
+            addPolygonPositionToDatabase(db, id, position);
         }
-
-        db.close();
     }
 
-    private void addPosition(SQLiteDatabase db, int id, LatLng position) {
+    private void addPolygonPositionToDatabase(SQLiteDatabase db, int id, LatLng position) {
         ContentValues values = new ContentValues();
         values.put(KEY_POSITION_ID, id);
         values.put(KEY_POSITION_LAT, position.latitude);
@@ -170,13 +249,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(TABLE_POSITIONS, null, values);
     }
 
-    public int getPolygonIdByName(String name) {
+    public int getPolygonIdByNameFromDatabase(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_POLYGONS, new String[] {
+        Cursor cursor = db.query(TABLE_POLYGONS, new String[]{
                         KEY_POLYGON_ID, KEY_POLYGON_NAME
                 }, KEY_POLYGON_NAME + "=?",
-                new String[] { name }, null, null, null, null);
+                new String[]{name}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
 
@@ -185,13 +264,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return id;
     }
 
-    private String getPolygonNameById(int id) {
+    private String getPolygonNameByIdFromDatabase(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_POLYGONS, new String[] {
+        Cursor cursor = db.query(TABLE_POLYGONS, new String[]{
                         KEY_POLYGON_ID, KEY_POLYGON_NAME
                 }, KEY_POLYGON_ID + "=?",
-                new String[] { Integer.toString(id) }, null, null, null, null);
+                new String[]{Integer.toString(id)}, null, null, null, null);
+
         if (cursor != null)
             cursor.moveToFirst();
 
@@ -201,16 +281,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return name;
     }
 
-    public List<ExtendedPolygon> getPolygons(Context current) {
+    public List<ExtendedPolygon> getPolygonsFromDatabase(Context current) {
         List<ExtendedPolygon> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_POLYGONS, null);
 
-        if (cursor.moveToFirst()){
-            while(!cursor.isAfterLast()){
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
                 int id = cursor.getInt(cursor.getColumnIndex(KEY_POLYGON_ID));
                 String name = cursor.getString(cursor.getColumnIndex(KEY_POLYGON_NAME));
-                List<LatLng> positions = getPositionsById(id);
+                List<LatLng> positions = getPositionsByIdFromDatabase(id);
                 result.add(new ExtendedPolygon(id, current, positions, name));
 
                 cursor.moveToNext();
@@ -221,16 +301,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result;
     }
 
-    private List<LatLng> getPositionsById(int id) {
+    private List<LatLng> getPositionsByIdFromDatabase(int id) {
         List<LatLng> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_POSITIONS, new String[] {
+        Cursor cursor = db.query(TABLE_POSITIONS, new String[]{
                         KEY_POSITION_ID, KEY_POSITION_LAT, KEY_POSITION_LNG
                 }, KEY_POSITION_ID + "=?",
-                new String[] { Integer.toString(id) }, null, null, null, null);
+                new String[]{Integer.toString(id)}, null, null, null, null);
 
-        if (cursor.moveToFirst()){
-            while(!cursor.isAfterLast()){
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
                 float lat = cursor.getFloat(cursor.getColumnIndex(KEY_POSITION_LAT));
                 float lng = cursor.getFloat(cursor.getColumnIndex(KEY_POSITION_LNG));
 
@@ -243,14 +323,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result;
     }
 
-    public boolean isDiscovered(int id) {
+    public boolean checkIfPolygonIsDiscoveredInDatabase(int id) {
         int result;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_POLYGONS, new String[] {
+        Cursor cursor = db.query(TABLE_POLYGONS, new String[]{
                         KEY_POLYGON_ID, KEY_POLYGON_NAME, KEY_POLYGON_DISCOVERED
                 }, KEY_POLYGON_ID + "=?",
-                new String[] { Integer.toString(id) }, null, null, null, null);
-        if(cursor.moveToFirst()) {
+                new String[]{Integer.toString(id)}, null, null, null, null);
+        if (cursor.moveToFirst()) {
             result = cursor.getInt(cursor.getColumnIndex(KEY_POLYGON_DISCOVERED));
         } else {
             result = 0;
@@ -260,43 +340,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result == 1;
     }
 
-    public void setDiscovered(int id) {
+    public void setPolygonDiscoveredInDatabase(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_POLYGON_ID, id);
-        values.put(KEY_POLYGON_NAME, getPolygonNameById(id));
+        values.put(KEY_POLYGON_NAME, getPolygonNameByIdFromDatabase(id));
         values.put(KEY_POLYGON_DISCOVERED, 1);
 
         db.update(TABLE_POLYGONS, values, "id = ?", new String[]{Integer.toString(id)});
-        db.close();
     }
 
-    public void savePlayer(Player player) {
+    public void savePlayerToDatabase(Player player) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_PLAYER_RACE, player.getClass().toString());
+        values.put(KEY_PLAYER_RACE, player.getRace().toString());
         values.put(KEY_PLAYER_NAME, player.getName());
         values.put(KEY_PLAYER_LEVEL, player.getLevel());
         values.put(KEY_PLAYER_EXP, player.getExp());
         values.put(KEY_PLAYER_HAS_CAMP, player.hasCamp() ? 1 : 0);
 
         db.update(TABLE_PLAYER, values, "id = ?", new String[]{Integer.toString(1)});
-        db.close();
     }
 
-    public Player getPlayer() {
+    public Player getPlayerFromDatabase() {
         Player player;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_PLAYER, new String[] {
+        Cursor cursor = db.query(TABLE_PLAYER, new String[]{
                         KEY_PLAYER_ID, KEY_PLAYER_RACE, KEY_PLAYER_NAME, KEY_PLAYER_LEVEL, KEY_PLAYER_EXP, KEY_PLAYER_HAS_CAMP
                 }, KEY_POSITION_ID + "=?",
-                new String[] { Integer.toString(1) }, null, null, null, null);
+                new String[]{Integer.toString(1)}, null, null, null, null);
 
-        if (cursor.moveToFirst()){
-            switch(cursor.getString(cursor.getColumnIndex(KEY_PLAYER_RACE))) {
-                case("class eu.faultycode.rpg.races.Human") :
+        if (cursor.moveToFirst()) {
+            switch (cursor.getString(cursor.getColumnIndex(KEY_PLAYER_RACE))) {
+                case ("Human"):
                     int level = cursor.getInt(cursor.getColumnIndex(KEY_PLAYER_LEVEL));
                     int exp = cursor.getInt(cursor.getColumnIndex(KEY_PLAYER_EXP));
                     String name = cursor.getString(cursor.getColumnIndex(KEY_PLAYER_NAME));
@@ -314,11 +392,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return player;
     }
 
-    //TODO: TMP FOR DEBUGGIN'
+    //TMP FOR DEBUGGIN'
     public void dropDatabase() {
         File file = new File(DB_PATH);
         boolean deleted = file.delete();
-        if(deleted) {
+        if (deleted) {
             Log.d("Database: ", "database has been dropped.");
         } else {
             Log.e("Database: ", "couldn't drop database.");

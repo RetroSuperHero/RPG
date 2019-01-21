@@ -18,14 +18,13 @@ public class ChooseRaceActivity extends AppCompatActivity {
 
         DatabaseHandler db = new DatabaseHandler(this);
 
-        if(!db.checkDB()) {
-            db.create();
+        if(!db.checkIfDatabaseExists()) {
             View view = findViewById(R.id.intent);
             EditText nameInput = findViewById(R.id.nameInput);
 
             view.setOnClickListener(thisView -> {
                 Player player = new Human(nameInput.getText().toString());
-                db.savePlayer(player);
+                db.savePlayerToDatabase(player);
                 startActivity(new Intent(ChooseRaceActivity.this, MapView.class));
             });
         } else {
