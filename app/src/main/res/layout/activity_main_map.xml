@@ -16,6 +16,7 @@
         <include layout="@layout/map_discovered" />
         <include layout="@layout/map_marker_info" />
         <include layout="@layout/map_legend" />
+        <include layout="@layout/marker_activity" />
 
     </RelativeLayout>
 

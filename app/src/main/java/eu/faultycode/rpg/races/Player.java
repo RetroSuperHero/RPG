@@ -1,44 +1,76 @@
 package eu.faultycode.rpg.races;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import eu.faultycode.rpg.map.CurrentLocation;
+
 public abstract class Player {
+    private Race race;
+    private String name;
     private int exp;
     private int level;
     private int dmg;
     private int agility;
+    private int HP;
+    private int maxWeight;
+    private boolean hasCamp;
 
-    public Player(int basicDmg, int basicAgility) {
+    Player(String name, Race race, int basicDmg, int basicAgility, int basicHP, int maxWeight) {
+        this.name = name;
+        this.race = race;
         this.exp = 0;
         this.level = 1;
-        setStats(basicDmg, basicAgility);
+        this.hasCamp = false;
+        setStats(basicDmg, basicAgility, basicHP, maxWeight);
     }
 
-    private void setStats(int basicDmg, int basicAgility) {
-        this.dmg = basicDmg;
-        this.agility = basicAgility;
+    Player(String name, Race race, int basicDmg, int basicAgility, int basicHP, int maxWeight, int level, int exp, boolean hasCamp) {
+        this.name = name;
+        this.race = race;
+        this.exp = exp;
+        this.level = level;
+        this.hasCamp = hasCamp;
+        setStats(basicDmg, basicAgility, basicHP, maxWeight);
+        for(int i=0; i<level; ++i) {
+            statsOnLevelUp();
+        }
+    }
+
+    private void setStats(int basicDmg, int basicAgility, int basicHP, int maxWeight) {
+        setDmg(basicDmg);
+        setAgility(basicAgility);
+        setHP(basicHP);
+        setMaxWeight(maxWeight);
     }
 
     public void addExp(int exp) {
-        this.exp += exp;
+        setExp(this.exp + exp);
         while(isNextLevel()) {
             levelUp();
         }
     }
 
-    private void levelUp() {
-        this.level++;
-        statsUp();
-    }
-
-    private void statsUp() {
-    }
-
     private boolean isNextLevel(){
-        return this.exp >= levelFunction();
+        return this.getExp() >= levelFunction();
     }
+
+    private void levelUp() {
+        setLevel(level + 1);
+        statsOnLevelUp();
+    }
+
+    abstract void statsOnLevelUp();
 
     private int levelFunction() {
         return (int) Math.floor(Math.pow(50, (Math.pow(this.level, 1.0/4))));
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public Race getRace() { return race; }
 
     public int getLevel() {
         return this.level;
@@ -46,5 +78,56 @@ public abstract class Player {
 
     public int getExp() {
         return this.exp;
+    }
+
+    public int getAgility() {
+        return agility;
+    }
+
+    public int getDmg() {
+        return dmg;
+    }
+
+    public int getHP() {
+        return HP;
+    }
+
+    public int getMaxWeight() {
+        return maxWeight;
+    }
+
+    public boolean hasCamp() {
+        return hasCamp;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setExp(int exp) {
+        this.exp = exp;
+    }
+
+    public void setAgility(int agility) {
+        if(agility > 0)
+            this.agility = agility;
+    }
+
+    public void setDmg(int dmg) {
+        if(dmg > 0)
+            this.dmg = dmg;
+    }
+
+    public void setHP(int HP) {
+        if(HP > 0)
+            this.HP = HP;
+    }
+
+    public void setHasCamp(boolean hasCamp) {
+        this.hasCamp = hasCamp;
+    }
+
+    public void setMaxWeight(int maxWeight) {
+        this.maxWeight = maxWeight;
     }
 }
