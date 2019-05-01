@@ -1,10 +1,5 @@
 package eu.faultycode.rpg.races;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import eu.faultycode.rpg.map.CurrentLocation;
-
 public abstract class Player {
     private Race race;
     private String name;

@@ -22,26 +22,26 @@ public class ExtendedMarker {
 
     private boolean visible;
     private MarkerTypes markerType;
-    private Context context;
+    private Context mapContext;
     private MarkerOptions marker;
-
     private boolean alwaysVisible;
     private boolean clickable = true;
+
     private static final int MARKER_SIZE = 150;
 
-    public ExtendedMarker(int id, Context current, LatLng position, String icon, String name, boolean alwaysVisible, MarkerTypes markerType, boolean visible) {
+    public ExtendedMarker(int id, Context current, LatLng position, String icon, String name, boolean isAlwaysVisible, MarkerTypes markerType, boolean visible) {
         this.markerType = markerType;
         this.visible = visible;
-        this.context = current;
-        this.alwaysVisible = alwaysVisible;
+        this.mapContext = current;
+        this.alwaysVisible = isAlwaysVisible;
         marker = new MarkerOptions()
                 .title(name)
                 .position(position)
                 .snippet(Integer.toString(id))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(icon,MARKER_SIZE,MARKER_SIZE)));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(icon)));
     }
 
-    public Boolean isInRange(Marker marker, float radius) {
+    boolean isInRange(Marker marker, float radius) {
         float[] results = new float[5];
         double thisLatitude = marker.getPosition().latitude;
         double thisLongitude = marker.getPosition().longitude;
@@ -52,17 +52,11 @@ public class ExtendedMarker {
         return results[0] <= radius;
     }
 
-    private Bitmap resizeMapIcons(String iconName,int width, int height){
-        Bitmap imageBitmap = BitmapFactory
-                .decodeResource(context.getResources(),context.getResources().getIdentifier(iconName, "drawable", context.getPackageName()));
-        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
-    }
-
-    public boolean isMarkerInVisiblePolygon(Polygon polygon) {
+    boolean isMarkerInVisiblePolygon(Polygon polygon) {
         return polygon.isVisible() && this.isMarkerInPolygon(polygon);
     }
 
-    public boolean isMarkerInPolygon(Polygon polygon) {
+    boolean isMarkerInPolygon(Polygon polygon) {
         return PolyUtil.containsLocation(this
                 .getMarker()
                 .getPosition(),
@@ -70,35 +64,41 @@ public class ExtendedMarker {
                 false);
     }
 
-    public MarkerOptions getMarker() {
+    MarkerOptions getMarker() {
         return marker;
     }
 
-    public LatLng getPosition() {
+    LatLng getPosition() {
         return this.getMarker().getPosition();
     }
 
-    public MarkerTypes getMarkerType() {
+    MarkerTypes getMarkerType() {
         return markerType;
     }
 
-    public boolean isVisible() {
+    boolean isVisible() {
         return visible;
     }
 
-    public void setPosition(LatLng newPosition) {
+    void setPosition(LatLng newPosition) {
         this.getMarker().position(newPosition);
     }
 
-    public boolean isAlwaysVisible() {
+    boolean isAlwaysVisible() {
         return alwaysVisible;
     }
 
-    public boolean isClickable() {
+    boolean isClickable() {
         return clickable;
     }
 
-    public void setClickable(boolean clickable) {
+    void setClickable(boolean clickable) {
         this.clickable = clickable;
+    }
+
+    private Bitmap resizeMapIcons(String iconName) {
+        Bitmap imageBitmap = BitmapFactory
+                .decodeResource(mapContext.getResources(), mapContext.getResources().getIdentifier(iconName, "drawable", mapContext.getPackageName()));
+        return Bitmap.createScaledBitmap(imageBitmap, ExtendedMarker.MARKER_SIZE, ExtendedMarker.MARKER_SIZE, false);
     }
 }

@@ -16,4 +16,6 @@
     <string name="dragon">Smok Wawelski</string>
     <string name="accept">Zaakceptuj</string>
     <string name="UnknownTerrain">Nieznane ziemie</string>
+    <string name="Found">Wyznaczono</string>
+    <string name="ShortestPath">najkrótszą trasę</string>
 </resources>

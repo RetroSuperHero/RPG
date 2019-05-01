@@ -27,13 +27,13 @@ import java.util.concurrent.TimeUnit;
 
 import eu.faultycode.rpg.R;
 
-public class ExtendedGeoApiContext {
+class ExtendedGeoApiContext {
     private static final int PATTERN_GAP_LENGTH_PX = 10;
     private static final PatternItem DOT = new Dot();
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DOT);
 
-    public static void createRoute(Context current, ExtendedMarker myLocationMarker, Marker destinationMarker, GoogleMap mMap) {
+    static void createRoute(Context current, ExtendedMarker myLocationMarker, Marker destinationMarker, GoogleMap mMap) {
         DateTime now = new DateTime();
 
         com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(myLocationMarker.getPosition().latitude, myLocationMarker.getPosition().longitude);
@@ -76,14 +76,5 @@ public class ExtendedGeoApiContext {
                 .color(colorPrimary)
                 .pattern(PATTERN_POLYGON_ALPHA)
                 .clickable(true));
-    }
-
-    public static void showDiscovery(View discovery, TextView textView1, TextView textView2) {
-        textView1.setText("Wyznaczoną");
-        textView2.setText("najkrótszą trasę");
-        discovery.animate().translationY(0).setDuration(750);
-        new android.os.Handler().postDelayed(() -> {
-            discovery.animate().translationY(-350).setDuration(750);
-        }, 2500);
     }
 }

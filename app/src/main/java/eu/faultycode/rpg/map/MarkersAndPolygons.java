@@ -17,7 +17,7 @@ import eu.faultycode.rpg.R;
 import eu.faultycode.rpg.races.Player;
 
 public class MarkersAndPolygons {
-    Player myPlayer;
+    private Player myPlayer;
     private CurrentLocation currentLocation;
     private Context mapContext;
     private DatabaseHandler db;
@@ -33,10 +33,6 @@ public class MarkersAndPolygons {
         campLocationMarker = new ExtendedMarker(0, mapContext, new LatLng(0, 0), "backpack", "Obozowisko", true, ExtendedMarker.MarkerTypes.PLAYER,true);
     }
 
-    public void setCurrentLocation(CurrentLocation currentLocation) {
-        this.currentLocation = currentLocation;
-    }
-
     public void createMarkersAndPolygons(ExtendedMap mMap) {
         mMap.clear();
         if(currentLocation.getMyPosition() != null) {
@@ -50,11 +46,15 @@ public class MarkersAndPolygons {
 
         markers = db.getMarkersFromDatabase(mapContext, mMap.getMap());
         List<ExtendedPolygon> polygonsOptions = db.getPolygonsFromDatabase(mapContext);
-        polygons = mMap.putPolygonsOnMap(polygonsOptions, mapContext, mMap.getMap());
-        mMap.putMarkersOnMap(markers, polygons, mMap.getMap());
+        polygons = mMap.putPolygonsOnMap(polygonsOptions, db);
+        mMap.putMarkersOnMap(markers, polygons);
     }
 
-    public void addCamp(GoogleMap mMap) {
+    void setCurrentLocation(CurrentLocation currentLocation) {
+        this.currentLocation = currentLocation;
+    }
+
+    void addCamp(GoogleMap mMap) {
         db.addMarkerToDatabase("Obozowisko", "backpack", currentLocation.getMyLocationMarker().getMarker().getPosition().latitude, currentLocation.getMyPosition().longitude,1);
         campLocationMarker.getMarker().position(currentLocation.getMyLocationMarker().getMarker().getPosition());
         mMap.addMarker(campLocationMarker.getMarker());
@@ -62,15 +62,7 @@ public class MarkersAndPolygons {
         db.savePlayerToDatabase(myPlayer);
     }
 
-    public List<ExtendedMarker> getMarkers() {
-        return markers;
-    }
-
-    public List<Polygon> getPolygons() {
-        return polygons;
-    }
-
-    public void isCurrentLocationInPolygon(ExtendedMap mMap) {
+    void isCurrentLocationInPolygon(ExtendedMap mMap) {
         Activity mapActivity = (Activity) mapContext;
         TextView areaName = mapActivity.findViewById(R.id.areaName);
         for (Polygon polygon : this.getPolygons()) {
@@ -94,5 +86,13 @@ public class MarkersAndPolygons {
                 }
             }
         }
+    }
+
+    List<ExtendedMarker> getMarkers() {
+        return markers;
+    }
+
+    List<Polygon> getPolygons() {
+        return polygons;
     }
 }

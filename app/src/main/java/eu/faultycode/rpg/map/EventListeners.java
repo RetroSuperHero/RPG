@@ -110,7 +110,7 @@ public class EventListeners {
                 View discovery = mapActivity.findViewById(R.id.discovered);
                 TextView textView1 = mapActivity.findViewById(R.id.textView1);
                 TextView textView2 = mapActivity.findViewById(R.id.textView2);
-                ExtendedGeoApiContext.showDiscovery(discovery, textView1, textView2);
+                CurrentLocation.showDiscovery(discovery, textView1, textView2);
                 ExtendedGeoApiContext.createRoute(mapActivity, currentLocation.getMyLocationMarker(), marker, mMap.getMap());
                 mMap.getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getMyPosition().latitude,
                         currentLocation.getMyPosition().longitude), ExtendedMap.getMinZoom()));

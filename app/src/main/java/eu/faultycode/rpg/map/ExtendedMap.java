@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import eu.faultycode.rpg.DatabaseHandler;
 
 public final class ExtendedMap {
+    private GoogleMap googleMap;
+
     private static final int MIN_ZOOM = 14;
     private static final int MAX_ZOOM = 18;
-    private GoogleMap googleMap;
 
     public ExtendedMap(Context currentMapContext, GoogleMap googleMap, int mapStyle) {
         this.googleMap = googleMap;
@@ -43,7 +44,11 @@ public final class ExtendedMap {
         }
     }
 
-    public void putMarkersOnMap(List<ExtendedMarker> extendedMarkers, List<Polygon> polygons, GoogleMap map) {
+    public GoogleMap getMap() {
+        return googleMap;
+    }
+
+    void putMarkersOnMap(List<ExtendedMarker> extendedMarkers, List<Polygon> polygons) {
         for (ExtendedMarker extendedMarker : extendedMarkers) {
             boolean foundInPolygon = false;
             for (Polygon polygon : polygons) {
@@ -53,24 +58,23 @@ public final class ExtendedMap {
             }
             if (extendedMarker.isAlwaysVisible() && foundInPolygon && extendedMarker.isVisible()) {
                 extendedMarker.setClickable(false);
-                map.addMarker(extendedMarker.getMarker());
+                googleMap.addMarker(extendedMarker.getMarker());
             }
 
             if (!foundInPolygon && extendedMarker.isVisible()) {
                 extendedMarker.setClickable(true);
-                map.addMarker(extendedMarker.getMarker());
+                googleMap.addMarker(extendedMarker.getMarker());
             }
         }
     }
 
-    public List<Polygon> putPolygonsOnMap(List<ExtendedPolygon> extendedPolygons, Context current, GoogleMap googleMap) {
+    List<Polygon> putPolygonsOnMap(List<ExtendedPolygon> extendedPolygons, DatabaseHandler db) {
         List<Polygon> polygons = new ArrayList<>();
 
         for(ExtendedPolygon extendedPolygon : extendedPolygons) {
             Polygon polygon = googleMap.addPolygon(extendedPolygon.getPolygon());
             polygon.setTag(extendedPolygon.getName());
             polygons.add(polygon);
-            DatabaseHandler db = new DatabaseHandler(current);
             if(db.checkIfPolygonIsDiscoveredInDatabase(extendedPolygon.getId())) {
                 polygon.setVisible(false);
             }
@@ -78,7 +82,7 @@ public final class ExtendedMap {
         return polygons;
     }
 
-    public void showDiscovery(Polygon polygon, View discovery, TextView textView1, TextView textView2) {
+    void showDiscovery(Polygon polygon, View discovery, TextView textView1, TextView textView2) {
         textView1.setText("Odkryłeś");
         textView2.setText(polygon.getTag().toString());
         discovery.animate().translationY(0).setDuration(750);
@@ -87,26 +91,23 @@ public final class ExtendedMap {
         }, 2500);
     }
 
-    public GoogleMap getMap() {
-        return googleMap;
-    }
-
-    public void clear() {
-        googleMap.clear();
-    }
-
-    public void addMarker(MarkerOptions marker) {
+    void addMarker(MarkerOptions marker) {
         googleMap.addMarker(marker);
     }
-    public void moveCamera(CameraUpdate cameraUpdate) {
+
+    void moveCamera(CameraUpdate cameraUpdate) {
         googleMap.moveCamera(cameraUpdate);
     }
 
-    public static int getMaxZoom() {
+    void clear() {
+        googleMap.clear();
+    }
+
+    static int getMaxZoom() {
         return MAX_ZOOM;
     }
 
-    public static int getMinZoom() {
+    static int getMinZoom() {
         return MIN_ZOOM;
     }
 }

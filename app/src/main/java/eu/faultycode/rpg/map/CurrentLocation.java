@@ -7,8 +7,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+
+import eu.faultycode.rpg.R;
 
 public class CurrentLocation {
     private ExtendedMap mMap;
@@ -29,6 +34,16 @@ public class CurrentLocation {
         //TODO
         myLocationMarker = new ExtendedMarker(0, mapContext, new LatLng(0, 0), "x", "Ja", true, ExtendedMarker.MarkerTypes.PLAYER, true);
         setCurrentLocation(markersAndPolygons);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(getMyPosition()));
+    }
+
+    static void showDiscovery(View discovery, TextView textView1, TextView textView2) {
+        textView1.setText(R.string.Found);
+        textView2.setText(R.string.ShortestPath);
+        discovery.animate().translationY(0).setDuration(750);
+        new android.os.Handler().postDelayed(() -> {
+            discovery.animate().translationY(-350).setDuration(750);
+        }, 2500);
     }
 
     private void setCurrentLocation(MarkersAndPolygons markersAndPolygons) {
@@ -56,10 +71,9 @@ public class CurrentLocation {
                 }
             }
         }
-//        Optional.ofNullable(location)
-//                .ifPresent(loc -> setMap(loc, markersAndPolygons));
+
         if (location != null) {
-            setMap(location, markersAndPolygons);
+            reloadMap(location, markersAndPolygons);
         }
     }
 
@@ -67,21 +81,21 @@ public class CurrentLocation {
         return ContextCompat.checkSelfPermission(mapContext, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(mapContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED;
+                PackageManager.PERMISSION_GRANTED;
     }
 
-    public void setMap(Location location, MarkersAndPolygons markersAndPolygons) {
+    void reloadMap(Location location, MarkersAndPolygons markersAndPolygons) {
         mMap.clear();
         myLocationMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
         markersAndPolygons.createMarkersAndPolygons(mMap);
         markersAndPolygons.isCurrentLocationInPolygon(mMap);
     }
 
-    public LatLng getMyPosition() {
-        return myLocationMarker.getPosition();
+    ExtendedMarker getMyLocationMarker() {
+        return myLocationMarker;
     }
 
-    public ExtendedMarker getMyLocationMarker() {
-        return myLocationMarker;
+    LatLng getMyPosition() {
+        return myLocationMarker.getPosition();
     }
 }

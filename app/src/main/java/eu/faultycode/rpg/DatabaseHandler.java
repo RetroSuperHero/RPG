@@ -152,19 +152,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 LatLng position = new LatLng(lat, lng);
                 ExtendedMarker.MarkerTypes markerType;
 
-                switch (type) {
-                    case 0:
-                        markerType = ExtendedMarker.MarkerTypes.MERCHANT;
-                        break;
-                    case 1:
-                        markerType = ExtendedMarker.MarkerTypes.QUEST;
-                        break;
-                    case 2:
-                        markerType = ExtendedMarker.MarkerTypes.MONSTER;
-                        break;
-                    default:
-                        markerType = ExtendedMarker.MarkerTypes.PLAYER;
-                }
+                markerType = ExtendedMarker.MarkerTypes.values()[type];
 
                 result.add(new ExtendedMarker(id, current, position, icon, name, alwaysVisible == 1, markerType, visible == 1));
                 cursor.moveToNext();

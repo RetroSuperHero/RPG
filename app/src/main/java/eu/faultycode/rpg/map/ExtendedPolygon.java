@@ -25,15 +25,15 @@ public class ExtendedPolygon {
         this.id = id;
     }
 
-    public PolygonOptions getPolygon() {
-        return polygon;
-    }
-
     public String getName() {
         return name;
     }
 
     public int getId() {
         return id;
+    }
+
+    PolygonOptions getPolygon() {
+        return polygon;
     }
 }

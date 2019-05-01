@@ -11,13 +11,12 @@ public class ExtendedLocationListener implements LocationListener {
     public ExtendedLocationListener(MarkersAndPolygons markersAndPolygons, CurrentLocation currentLocation) {
         this.currentLocation = currentLocation;
         this.markersAndPolygons = markersAndPolygons;
-
     }
 
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            currentLocation.setMap(location, markersAndPolygons);
+            currentLocation.reloadMap(location, markersAndPolygons);
         }
     }
 

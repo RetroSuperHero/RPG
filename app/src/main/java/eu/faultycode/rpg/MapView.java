@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentActivity;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.CameraUpdateFactory;
 
 import eu.faultycode.rpg.map.CurrentLocation;
 import eu.faultycode.rpg.map.EventListeners;
@@ -35,7 +34,6 @@ public class MapView extends FragmentActivity implements OnMapReadyCallback {
         MarkersAndPolygons markersAndPolygons = new MarkersAndPolygons(this, myPlayer);
         CurrentLocation currentLocation = new CurrentLocation(this, mMap, markersAndPolygons);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation.getMyPosition()));
         EventListeners.setEventListeners(this, markersAndPolygons, mMap, currentLocation);
     }
 }
