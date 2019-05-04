@@ -1,4 +1,4 @@
-package eu.faultycode.rpg.quests;
+package eu.faultycode.rpg.markers;
 
 import android.app.Activity;
 import android.view.View;
@@ -11,7 +11,7 @@ import eu.faultycode.rpg.R;
 import eu.faultycode.rpg.map.ExtendedMap;
 import eu.faultycode.rpg.map.MarkersAndPolygons;
 
-public class Quest extends MarkerActivity {
+public class Quest extends MarkerInfo {
 
     public Quest(int id, int plotID, String title, String content, int rewardExp) {
         super(id, plotID, title, content, rewardExp);

@@ -15,8 +15,8 @@ import com.google.android.gms.maps.model.Polyline;
 
 import eu.faultycode.rpg.DatabaseHandler;
 import eu.faultycode.rpg.R;
-import eu.faultycode.rpg.quests.Fight;
-import eu.faultycode.rpg.quests.Quest;
+import eu.faultycode.rpg.markers.Fight;
+import eu.faultycode.rpg.markers.Quest;
 
 public class EventListeners {
     public static void setEventListeners(Activity mapActivity, MarkersAndPolygons markersAndPolygons, ExtendedMap mMap, CurrentLocation currentLocation) {

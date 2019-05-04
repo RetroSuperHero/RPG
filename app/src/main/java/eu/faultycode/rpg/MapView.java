@@ -33,6 +33,7 @@ public class MapView extends FragmentActivity implements OnMapReadyCallback {
         ExtendedMap mMap = new ExtendedMap(this, googleMap, R.raw.style_json);
         MarkersAndPolygons markersAndPolygons = new MarkersAndPolygons(this, myPlayer);
         CurrentLocation currentLocation = new CurrentLocation(this, mMap, markersAndPolygons);
+        markersAndPolygons.createMarkersAndPolygons(mMap);
 
         EventListeners.setEventListeners(this, markersAndPolygons, mMap, currentLocation);
     }

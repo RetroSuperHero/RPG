@@ -8,11 +8,11 @@ public abstract class WearableItem extends Item {
         setMinLevel(minLevel);
     }
 
-    private void setMinLevel(int minLevel) {
-        this.minLevel = minLevel;
-    }
-
     public int getMinLevel() {
         return minLevel;
+    }
+
+    private void setMinLevel(int minLevel) {
+        this.minLevel = minLevel;
     }
 }

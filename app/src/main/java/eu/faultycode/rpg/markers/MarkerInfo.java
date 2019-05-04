@@ -1,11 +1,11 @@
-package eu.faultycode.rpg.quests;
+package eu.faultycode.rpg.markers;
 
-public abstract class MarkerActivity {
+public abstract class MarkerInfo {
     private String title;
     private String content;
     private int rewardExp;
 
-    public MarkerActivity(int id, int plotID, String title, String content, int rewardExp) {
+    public MarkerInfo(int id, int plotID, String title, String content, int rewardExp) {
         this.content = content;
         this.title = title;
         this.rewardExp = rewardExp;

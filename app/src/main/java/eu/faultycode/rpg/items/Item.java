@@ -4,17 +4,29 @@ public abstract class Item {
     private int id;
     private String name;
     private int weight;
-    private int value;
+    private int stat;
 
     public Item(int itemId, String itemName, int weight, int value) {
         setId(itemId);
         setName(itemName);
         setWeight(weight);
-        setValue(value);
+        setStat(value);
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getStat() {
+        return stat;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getWeight() {
+        return weight;
     }
 
     private void setName(String name) {
@@ -22,27 +34,15 @@ public abstract class Item {
             this.name = name;
     }
 
-    public int getId() {
-        return id;
-    }
-
     private void setId(int id) {
         this.id = id;
-    }
-
-    public int getWeight() {
-        return weight;
     }
 
     private void setWeight(int weight) {
         this.weight = weight;
     }
 
-    private void setValue(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
+    private void setStat(int stat) {
+        this.stat = stat;
     }
 }

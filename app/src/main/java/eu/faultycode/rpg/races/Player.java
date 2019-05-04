@@ -32,6 +32,8 @@ public abstract class Player {
         }
     }
 
+    abstract void statsOnLevelUp();
+
     private void setStats(int basicDmg, int basicAgility, int basicHP, int maxWeight) {
         setDmg(basicDmg);
         setAgility(basicAgility);
@@ -54,8 +56,6 @@ public abstract class Player {
         setLevel(level + 1);
         statsOnLevelUp();
     }
-
-    abstract void statsOnLevelUp();
 
     private int levelFunction() {
         return (int) Math.floor(Math.pow(50, (Math.pow(this.level, 1.0/4))));

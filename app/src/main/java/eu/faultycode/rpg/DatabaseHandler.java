@@ -20,8 +20,8 @@ import java.util.List;
 
 import eu.faultycode.rpg.map.ExtendedMarker;
 import eu.faultycode.rpg.map.ExtendedPolygon;
-import eu.faultycode.rpg.quests.Fight;
-import eu.faultycode.rpg.quests.Quest;
+import eu.faultycode.rpg.markers.Fight;
+import eu.faultycode.rpg.markers.Quest;
 import eu.faultycode.rpg.races.Human;
 import eu.faultycode.rpg.races.Player;
 
